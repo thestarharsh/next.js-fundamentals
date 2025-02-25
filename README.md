@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Linear Clone
+
+A project management application built with Next.js, inspired by Linear.
+
+## Features
+
+- User authentication (sign up, sign in, sign out)
+- Issue management (create, update, delete)
+- Modern UI with Tailwind CSS
+- Responsive design
+
+## Tech Stack
+
+- [Next.js 13+](https://nextjs.org/) with App Router
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [Prisma](https://www.prisma.io/) for database ORM
+- [PostgreSQL](https://www.postgresql.org/) for database
+- [NextAuth.js](https://next-auth.js.org/) for authentication
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 16+ and npm/yarn
+- PostgreSQL database (or use a service like [Neon](https://neon.tech/))
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   git clone https://github.com/yourusername/linear-clone.git
+   cd linear-clone
+   ```
 
-## Learn More
+2. Install dependencies
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Copy the `.env.example` file to `.env.local` and update the values
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   cp .env.example .env.local
+   ```
 
-## Deploy on Vercel
+4. Set up your database and update the `DATABASE_URL` in `.env.local`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. Run database migrations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npx prisma db push
+   ```
+
+6. Start the development server
+
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Project Structure
+
+- `app/` - Next.js App Router pages and layouts
+- `app/api/` - API routes for authentication and issues
+- `app/components/` - Reusable UI components
+- `lib/` - Utility functions and libraries
+- `prisma/` - Database schema and client
+
+## License
+
+This project is licensed under the MIT License.
