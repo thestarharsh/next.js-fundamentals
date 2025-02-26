@@ -1,14 +1,15 @@
 import Link from 'next/link'
-import { getCurrentUser } from '@/lib/dal'
+
 import { Timestamp } from '../components/Timestamp'
+import { Suspense } from 'react'
+import DashboardButton from '../components/DashboardButton'
+import Button from '../components/ui/Button'
 
 export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = await getCurrentUser()
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-gray-200 dark:border-dark-border-subtle bg-white dark:bg-dark-base">
@@ -39,29 +40,20 @@ export default async function MarketingLayout({
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-700"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/auth/signin"
-                  className="text-sm font-medium hover:text-purple-600"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-700"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
+            <Suspense
+              fallback={
+                <div className="flex items-center space-x-4">
+                  <Link href="/signin">
+                    <Button variant="outline">Sign in</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button>Sign up</Button>
+                  </Link>
+                </div>
+              }
+            >
+              <DashboardButton />
+            </Suspense>
           </div>
         </div>
       </header>
@@ -132,14 +124,6 @@ export default async function MarketingLayout({
             <div>
               <h3 className="text-sm font-semibold mb-4">Legal</h3>
               <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="text-sm text-gray-600 hover:text-purple-600"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
                 <li>
                   <Link
                     href="/terms"

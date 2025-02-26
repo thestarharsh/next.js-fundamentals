@@ -4,10 +4,12 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 
 export default function PricingPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 text-white">
       <div className="max-w-2xl mx-auto text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h1>
-        <p className="text-xl text-gray-600">
+        <h1 className="text-4xl font-bold mb-4 text-white">
+          Simple, Transparent Pricing
+        </h1>
+        <p className="text-xl text-gray-400 dark:text-gray-300">
           Choose the plan that&apos;s right for you and your team
         </p>
       </div>
@@ -71,37 +73,11 @@ export default function PricingPage() {
         />
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 text-center">
-          Frequently Asked Questions
+      <div className="max-w-3xl mx-auto mt-16 text-center bg-gray-800 rounded-lg p-8">
+        <h2 className="text-2xl font-bold mb-4 text-white">
+          Need a custom solution?
         </h2>
-        <div className="space-y-6">
-          <FAQItem
-            question="Can I upgrade or downgrade my plan at any time?"
-            answer="Yes, you can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated amount for the remainder of your billing cycle. When downgrading, the new rate will apply at the start of your next billing cycle."
-          />
-          <FAQItem
-            question="Do you offer a discount for annual billing?"
-            answer="Yes, we offer a 15% discount when you choose annual billing instead of monthly billing."
-          />
-          <FAQItem
-            question="Is there a limit to how many issues I can create?"
-            answer="No, all plans include unlimited issues. You can create as many as you need to manage your projects effectively."
-          />
-          <FAQItem
-            question="What payment methods do you accept?"
-            answer="We accept all major credit cards (Visa, Mastercard, American Express) as well as PayPal."
-          />
-          <FAQItem
-            question="Do you offer any non-profit or educational discounts?"
-            answer="Yes, we offer special pricing for non-profit organizations and educational institutions. Please contact our sales team for more information."
-          />
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto mt-16 text-center bg-gray-50 rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-4">Need a custom solution?</h2>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-400 dark:text-gray-300 mb-8">
           Contact our sales team to discuss your specific requirements.
         </p>
         <a
@@ -147,8 +123,8 @@ function PricingCard({
     <div
       className={`rounded-lg p-6 ${
         highlighted
-          ? 'bg-blue-50 border-2 border-blue-200 shadow-md relative'
-          : 'bg-white border border-gray-200 shadow-sm'
+          ? 'bg-blue-900 border-2 border-blue-700 shadow-md relative'
+          : 'bg-gray-800 border border-gray-700 shadow-sm'
       }`}
     >
       {badge && (
@@ -156,21 +132,29 @@ function PricingCard({
           {badge}
         </div>
       )}
-      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <h3 className="text-xl font-bold mb-2 text-white">{title}</h3>
       <div className="mb-4">
-        <span className="text-3xl font-bold">{price}</span>
-        {price !== 'Custom' && <span className="text-gray-600"> {period}</span>}
+        <span className="text-3xl font-bold text-white">{price}</span>
+        {price !== 'Custom' && (
+          <span className="text-gray-400 dark:text-gray-300"> {period}</span>
+        )}
       </div>
-      <p className="text-gray-600 mb-6">{description}</p>
+      <p className="text-gray-400 dark:text-gray-300 mb-6">{description}</p>
       <ul className="space-y-3 mb-6">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start">
             {feature.included ? (
-              <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-green-300 mr-2 flex-shrink-0" />
             ) : (
-              <XCircle className="h-5 w-5 text-gray-300 mr-2 flex-shrink-0" />
+              <XCircle className="h-5 w-5 text-gray-500 mr-2 flex-shrink-0" />
             )}
-            <span className={feature.included ? '' : 'text-gray-400'}>
+            <span
+              className={
+                feature.included
+                  ? 'text-white'
+                  : 'text-gray-500 dark:text-gray-600'
+              }
+            >
               {feature.name}
             </span>
           </li>
@@ -181,25 +165,11 @@ function PricingCard({
         className={`w-full inline-flex h-10 items-center justify-center rounded-md px-8 py-2 text-sm font-medium shadow transition-colors ${
           highlighted
             ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-white border border-gray-200 hover:bg-gray-50'
+            : 'bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white'
         }`}
       >
         {buttonText}
       </Link>
-    </div>
-  )
-}
-
-interface FAQItemProps {
-  question: string
-  answer: string
-}
-
-function FAQItem({ question, answer }: FAQItemProps) {
-  return (
-    <div className="border-b border-gray-200 pb-6">
-      <h3 className="text-lg font-semibold mb-2">{question}</h3>
-      <p className="text-gray-600">{answer}</p>
     </div>
   )
 }
