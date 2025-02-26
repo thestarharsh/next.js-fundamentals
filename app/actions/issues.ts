@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { db } from '@/db'
 import { issues } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -69,9 +68,6 @@ export async function createIssue(data: IssueData): Promise<ActionResponse> {
       userId: validatedData.userId,
     })
 
-    // Revalidate affected paths
-    revalidatePath('/dashboard')
-
     return { success: true, message: 'Issue created successfully' }
   } catch (error) {
     console.error('Error creating issue:', error)
@@ -127,10 +123,6 @@ export async function updateIssue(
     // Update issue
     await db.update(issues).set(updateData).where(eq(issues.id, id))
 
-    // Revalidate affected paths
-    revalidatePath('/dashboard')
-    revalidatePath(`/issues/${id}`)
-
     return { success: true, message: 'Issue updated successfully' }
   } catch (error) {
     console.error('Error updating issue:', error)
@@ -153,9 +145,6 @@ export async function deleteIssue(id: number) {
 
     // Delete issue
     await db.delete(issues).where(eq(issues.id, id))
-
-    // Revalidate affected paths
-    revalidatePath('/dashboard')
 
     return { success: true, message: 'Issue deleted successfully' }
   } catch (error) {

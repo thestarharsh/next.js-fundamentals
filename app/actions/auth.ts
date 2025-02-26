@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import {
   verifyPassword,
@@ -88,9 +87,6 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
     // Create session
     await createSession(user.id)
 
-    // Revalidate paths
-    revalidatePath('/dashboard')
-
     return {
       success: true,
       message: 'Signed in successfully',
@@ -152,9 +148,6 @@ export async function signUp(formData: FormData): Promise<ActionResponse> {
     // Create session for the newly registered user
     await createSession(user.id)
 
-    // Revalidate paths
-    revalidatePath('/dashboard')
-
     return {
       success: true,
       message: 'Account created successfully',
@@ -173,15 +166,10 @@ export async function signOut(): Promise<void> {
   try {
     await mockDelay(300)
     await deleteSession()
-
-    // Revalidate paths
-
-    // Redirect to signin page
   } catch (error) {
     console.error('Sign out error:', error)
     throw new Error('Failed to sign out')
   } finally {
-    revalidatePath('/')
     redirect('/signin')
   }
 }
