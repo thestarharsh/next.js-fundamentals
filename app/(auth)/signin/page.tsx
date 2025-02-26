@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useActionState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/app/components/ui/Button'
 import {
@@ -12,49 +12,41 @@ import {
 } from '@/app/components/ui/Form'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { signIn, ActionResponse } from '@/app/actions/auth'
+
+const initialState: ActionResponse = {
+  success: false,
+  message: '',
+  errors: undefined,
+}
 
 export default function SignInPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    if (!email || !password) {
-      setError('Please enter both email and password')
-      setIsLoading(false)
-      return
-    }
-
+  // Use useActionState hook for the form submission action
+  const [state, formAction, isPending] = useActionState<
+    ActionResponse,
+    FormData
+  >(async (prevState: ActionResponse, formData: FormData) => {
     try {
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const result = await signIn(formData)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to sign in')
+      // Handle successful submission
+      if (result.success) {
+        toast.success('Signed in successfully')
+        router.push('/dashboard')
+        router.refresh()
       }
 
-      toast.success('Signed in successfully')
-      router.push('/dashboard')
-      router.refresh()
+      return result
     } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setIsLoading(false)
+      return {
+        success: false,
+        message: (err as Error).message || 'An error occurred',
+        errors: undefined,
+      }
     }
-  }
+  }, initialState)
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50 dark:bg-[#121212]">
@@ -69,8 +61,10 @@ export default function SignInPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-[#1A1A1A] py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100 dark:border-dark-border-subtle">
-          <Form onSubmit={handleSubmit} className="space-y-6">
-            {error && <FormError>{error}</FormError>}
+          <Form action={formAction} className="space-y-6">
+            {state?.message && !state.success && (
+              <FormError>{state.message}</FormError>
+            )}
 
             <FormGroup>
               <FormLabel htmlFor="email">Email</FormLabel>
@@ -80,10 +74,15 @@ export default function SignInPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={isPending}
+                aria-describedby="email-error"
+                className={state?.errors?.email ? 'border-red-500' : ''}
               />
+              {state?.errors?.email && (
+                <p id="email-error" className="text-sm text-red-500">
+                  {state.errors.email[0]}
+                </p>
+              )}
             </FormGroup>
 
             <FormGroup>
@@ -94,14 +93,19 @@ export default function SignInPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isPending}
+                aria-describedby="password-error"
+                className={state?.errors?.password ? 'border-red-500' : ''}
               />
+              {state?.errors?.password && (
+                <p id="password-error" className="text-sm text-red-500">
+                  {state.errors.password[0]}
+                </p>
+              )}
             </FormGroup>
 
             <div>
-              <Button type="submit" className="w-full" isLoading={isLoading}>
+              <Button type="submit" className="w-full" isLoading={isPending}>
                 Sign in
               </Button>
             </div>

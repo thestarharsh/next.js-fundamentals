@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/dal'
+import { Timestamp } from '../components/Timestamp'
 
 export default async function MarketingLayout({
   children,
@@ -152,7 +153,7 @@ export default async function MarketingLayout({
           </div>
           <div className="mt-8 border-t pt-8 text-center">
             <p className="text-sm text-gray-600">
-              &copy; {new Date().getFullYear()} Mode. All rights reserved.
+              &copy; <Timestamp /> Mode. All rights reserved.
             </p>
           </div>
         </div>

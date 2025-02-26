@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from './ui/Button'
 import { Trash2Icon } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { deleteIssue } from '@/app/actions/issues'
 
 interface DeleteIssueButtonProps {
   id: number
@@ -12,29 +13,26 @@ interface DeleteIssueButtonProps {
 
 export default function DeleteIssueButton({ id }: DeleteIssueButtonProps) {
   const router = useRouter()
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const [showConfirm, setShowConfirm] = useState(false)
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    startTransition(async () => {
+      try {
+        const result = await deleteIssue(id)
 
-    try {
-      const response = await fetch(`/api/issues/${id}`, {
-        method: 'DELETE',
-      })
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to delete issue')
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to delete issue')
+        toast.success('Issue deleted successfully')
+        router.push('/dashboard')
+        router.refresh()
+      } catch (error) {
+        toast.error('Failed to delete issue')
+        console.error('Error deleting issue:', error)
       }
-
-      toast.success('Issue deleted successfully')
-      router.push('/dashboard')
-      router.refresh()
-    } catch (error) {
-      toast.error('Failed to delete issue')
-      console.error('Error deleting issue:', error)
-      setIsDeleting(false)
-    }
+    })
   }
 
   if (showConfirm) {
@@ -44,7 +42,7 @@ export default function DeleteIssueButton({ id }: DeleteIssueButtonProps) {
           variant="outline"
           size="sm"
           onClick={() => setShowConfirm(false)}
-          disabled={isDeleting}
+          disabled={isPending}
         >
           Cancel
         </Button>
@@ -52,7 +50,7 @@ export default function DeleteIssueButton({ id }: DeleteIssueButtonProps) {
           variant="danger"
           size="sm"
           onClick={handleDelete}
-          isLoading={isDeleting}
+          isLoading={isPending}
         >
           Delete
         </Button>

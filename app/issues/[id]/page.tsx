@@ -1,4 +1,4 @@
-import { getIssue } from '@/app/actions/issues'
+import { getIssue } from '@/lib/dal'
 import { formatRelativeTime } from '@/lib/utils'
 import { Priority, Status } from '@/lib/types'
 import Link from 'next/link'
@@ -11,9 +11,10 @@ import DeleteIssueButton from '../../components/DeleteIssueButton'
 export default async function IssuePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const issue = await getIssue(parseInt(params.id))
+  const { id } = await params
+  const issue = await getIssue(parseInt(id))
 
   if (!issue) {
     notFound()
@@ -63,7 +64,7 @@ export default async function IssuePage({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-3xl font-bold">{title}</h1>
           <div className="flex items-center space-x-2">
-            <Link href={`/issues/${params.id}/edit`}>
+            <Link href={`/issues/${id}/edit`}>
               <Button variant="outline" size="sm">
                 <span className="flex items-center">
                   <Edit2Icon size={16} className="mr-1" />
@@ -71,7 +72,7 @@ export default async function IssuePage({
                 </span>
               </Button>
             </Link>
-            <DeleteIssueButton id={parseInt(params.id)} />
+            <DeleteIssueButton id={parseInt(id)} />
           </div>
         </div>
       </div>

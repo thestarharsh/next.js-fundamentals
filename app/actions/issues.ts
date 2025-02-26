@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/db'
 import { issues } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/dal'
 import { z } from 'zod'
 import { mockDelay } from '@/lib/utils'
 
@@ -14,10 +14,13 @@ const IssueSchema = z.object({
     .string()
     .min(3, 'Title must be at least 3 characters')
     .max(100, 'Title must be less than 100 characters'),
+
   description: z.string().optional().nullable(),
+
   status: z.enum(['backlog', 'todo', 'in_progress', 'done'], {
     errorMap: () => ({ message: 'Please select a valid status' }),
   }),
+
   priority: z.enum(['low', 'medium', 'high'], {
     errorMap: () => ({ message: 'Please select a valid priority' }),
   }),
@@ -36,7 +39,7 @@ export type ActionResponse = {
 export async function createIssue(data: IssueData): Promise<ActionResponse> {
   try {
     // Security check - ensure user is authenticated
-    await mockDelay(1000)
+    await mockDelay(700)
     const user = await getCurrentUser()
     if (!user) {
       return {
@@ -86,7 +89,7 @@ export async function updateIssue(
 ): Promise<ActionResponse> {
   try {
     // Security check - ensure user is authenticated
-    await mockDelay(1000)
+    await mockDelay(700)
     const user = await getCurrentUser()
     if (!user) {
       return {
@@ -142,7 +145,7 @@ export async function updateIssue(
 export async function deleteIssue(id: number) {
   try {
     // Security check - ensure user is authenticated
-    await mockDelay(1000)
+    await mockDelay(700)
     const user = await getCurrentUser()
     if (!user) {
       throw new Error('Unauthorized')
@@ -162,38 +165,5 @@ export async function deleteIssue(id: number) {
       message: 'An error occurred while deleting the issue',
       error: 'Failed to delete issue',
     }
-  }
-}
-
-// Fetcher functions for React Query
-export async function getIssue(id: number) {
-  try {
-    await mockDelay(1000)
-    const result = await db.query.issues.findFirst({
-      where: eq(issues.id, id),
-      with: {
-        user: true,
-      },
-    })
-    return result
-  } catch (error) {
-    console.error(`Error fetching issue ${id}:`, error)
-    throw new Error('Failed to fetch issue')
-  }
-}
-
-export async function getIssues() {
-  try {
-    await mockDelay(1000)
-    const result = await db.query.issues.findMany({
-      with: {
-        user: true,
-      },
-      orderBy: (issues, { desc }) => [desc(issues.createdAt)],
-    })
-    return result
-  } catch (error) {
-    console.error('Error fetching issues:', error)
-    throw new Error('Failed to fetch issues')
   }
 }

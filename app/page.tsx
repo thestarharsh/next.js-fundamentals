@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { getCurrentUser } from '@/lib/auth'
+
 import Button from '@/app/components/ui/Button'
+import { Timestamp } from './components/Timestamp'
+import { Suspense } from 'react'
+
+import DashboardButton from './components/DashboardButton'
 
 export default async function LandingPage() {
-  const user = await getCurrentUser()
-
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-gray-200 dark:border-dark-border-subtle">
@@ -15,20 +17,20 @@ export default async function LandingPage() {
             </span>
           </div>
           <div>
-            {user ? (
-              <Link href="/dashboard">
-                <Button>Go to Dashboard</Button>
-              </Link>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link href="/signin">
-                  <Button variant="outline">Sign in</Button>
-                </Link>
-                <Link href="/signup">
-                  <Button>Sign up</Button>
-                </Link>
-              </div>
-            )}
+            <Suspense
+              fallback={
+                <div className="flex items-center space-x-4">
+                  <Link href="/signin">
+                    <Button variant="outline">Sign in</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button>Sign up</Button>
+                  </Link>
+                </div>
+              }
+            >
+              <DashboardButton />
+            </Suspense>
           </div>
         </div>
       </header>
@@ -47,7 +49,7 @@ export default async function LandingPage() {
               your projects with ease.
             </p>
             <div className="mt-10">
-              {user ? (
+              {/* {user ? (
                 <Link href="/dashboard">
                   <Button size="lg">Go to Dashboard</Button>
                 </Link>
@@ -55,7 +57,7 @@ export default async function LandingPage() {
                 <Link href="/signup">
                   <Button size="lg">Get Started</Button>
                 </Link>
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -65,7 +67,7 @@ export default async function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             <p>
-              © {new Date().getFullYear()} Mode. Built for Next.js Fundamentals.
+              © <Timestamp /> Mode. Built for Next.js Fundamentals.
             </p>
           </div>
         </div>

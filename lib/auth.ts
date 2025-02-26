@@ -3,8 +3,8 @@ import { nanoid } from 'nanoid'
 import { cookies } from 'next/headers'
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import * as jose from 'jose'
+import { cache } from 'react'
 
 // JWT types
 interface JWTPayload {
@@ -48,28 +48,6 @@ export async function createUser(email: string, password: string) {
     return { id, email }
   } catch (error) {
     console.error('Error creating user:', error)
-    return null
-  }
-}
-
-// Get user by email
-export async function getUserByEmail(email: string) {
-  try {
-    const result = await db.select().from(users).where(eq(users.email, email))
-    return result[0] || null
-  } catch (error) {
-    console.error('Error getting user by email:', error)
-    return null
-  }
-}
-
-// Get user by ID
-export async function getUserById(id: string) {
-  try {
-    const result = await db.select().from(users).where(eq(users.id, id))
-    return result[0] || null
-  } catch (error) {
-    console.error('Error getting user by ID:', error)
     return null
   }
 }
@@ -138,75 +116,35 @@ export async function createSession(userId: string) {
   }
 }
 
-// Refresh the JWT token if needed
-export async function refreshTokenIfNeeded() {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('auth_token')?.value
-
-    if (!token) return false
-
-    // Check if token needs refresh
-    const needsRefresh = await shouldRefreshToken(token)
-
-    if (needsRefresh) {
-      // Verify current token
-      const payload = await verifyJWT(token)
-      if (!payload) return false
-
-      // Create new token with same payload
-      const newToken = await generateJWT({ userId: payload.userId })
-
-      // Update cookie with new token
-      cookieStore.set({
-        name: 'auth_token',
-        value: newToken,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: '/',
-        sameSite: 'lax',
-      })
-
-      return true
-    }
-
-    return false
-  } catch (error) {
-    console.error('Error refreshing token:', error)
-    return false
-  }
-}
-
 // Get current session from JWT
-export async function getSession() {
+export const getSession = cache(async () => {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth_token')?.value
 
     if (!token) return null
-
-    // Check if token needs refresh (do this silently in the background)
-    refreshTokenIfNeeded().catch(console.error)
-
     const payload = await verifyJWT(token)
+
     return payload ? { userId: payload.userId } : null
   } catch (error) {
+    // Handle the specific prerendering error
+    if (
+      error instanceof Error &&
+      error.message.includes('During prerendering, `cookies()` rejects')
+    ) {
+      console.log(
+        'Cookies not available during prerendering, returning null session'
+      )
+      return null
+    }
+
     console.error('Error getting session:', error)
     return null
   }
-}
+})
 
 // Delete session by clearing the JWT cookie
 export async function deleteSession() {
   const cookieStore = await cookies()
   cookieStore.delete('auth_token')
-}
-
-// Current user
-export async function getCurrentUser() {
-  const session = await getSession()
-  if (!session) return null
-
-  return getUserById(session.userId)
 }

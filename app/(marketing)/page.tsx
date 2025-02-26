@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/dal'
 import Button from '@/app/components/ui/Button'
+import { Timestamp } from '../components/Timestamp'
 
 export default async function LandingPage() {
   const user = await getCurrentUser()
@@ -65,8 +66,7 @@ export default async function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             <p>
-              © {new Date().getFullYear()} Linear Clone. Built for Next.js
-              Fundamentals.
+              © <Timestamp /> Linear Clone. Built for Next.js Fundamentals.
             </p>
           </div>
         </div>

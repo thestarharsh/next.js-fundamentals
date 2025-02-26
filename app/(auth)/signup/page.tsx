@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useActionState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/app/components/ui/Button'
 import {
@@ -12,69 +12,40 @@ import {
 } from '@/app/components/ui/Form'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import { isValidEmail } from '@/lib/utils'
+import { signUp, ActionResponse } from '@/app/actions/auth'
+
+const initialState: ActionResponse = {
+  success: false,
+  message: '',
+  errors: undefined,
+}
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    // Validation
-    if (!email || !password || !confirmPassword) {
-      setError('All fields are required')
-      setIsLoading(false)
-      return
-    }
-
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid email address')
-      setIsLoading(false)
-      return
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      setIsLoading(false)
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      setIsLoading(false)
-      return
-    }
-
+  // Use useActionState hook for the form submission action
+  const [state, formAction, isPending] = useActionState<
+    ActionResponse,
+    FormData
+  >(async (prevState: ActionResponse, formData: FormData) => {
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const result = await signUp(formData)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to sign up')
+      // Handle successful submission
+      if (result.success) {
+        toast.success('Account created successfully')
+        router.push('/dashboard')
       }
 
-      toast.success('Account created successfully')
-      router.push('/signin')
+      return result
     } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setIsLoading(false)
+      return {
+        success: false,
+        message: (err as Error).message || 'An error occurred',
+        errors: undefined,
+      }
     }
-  }
+  }, initialState)
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50 dark:bg-[#121212]">
@@ -89,8 +60,10 @@ export default function SignUpPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-[#1A1A1A] py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100 dark:border-dark-border-subtle">
-          <Form onSubmit={handleSubmit} className="space-y-6">
-            {error && <FormError>{error}</FormError>}
+          <Form action={formAction} className="space-y-6">
+            {state?.message && !state.success && (
+              <FormError>{state.message}</FormError>
+            )}
 
             <FormGroup>
               <FormLabel htmlFor="email">Email</FormLabel>
@@ -100,10 +73,15 @@ export default function SignUpPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                disabled={isPending}
+                aria-describedby="email-error"
+                className={state?.errors?.email ? 'border-red-500' : ''}
               />
+              {state?.errors?.email && (
+                <p id="email-error" className="text-sm text-red-500">
+                  {state.errors.email[0]}
+                </p>
+              )}
             </FormGroup>
 
             <FormGroup>
@@ -114,10 +92,15 @@ export default function SignUpPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isPending}
+                aria-describedby="password-error"
+                className={state?.errors?.password ? 'border-red-500' : ''}
               />
+              {state?.errors?.password && (
+                <p id="password-error" className="text-sm text-red-500">
+                  {state.errors.password[0]}
+                </p>
+              )}
             </FormGroup>
 
             <FormGroup>
@@ -128,14 +111,21 @@ export default function SignUpPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isPending}
+                aria-describedby="confirmPassword-error"
+                className={
+                  state?.errors?.confirmPassword ? 'border-red-500' : ''
+                }
               />
+              {state?.errors?.confirmPassword && (
+                <p id="confirmPassword-error" className="text-sm text-red-500">
+                  {state.errors.confirmPassword[0]}
+                </p>
+              )}
             </FormGroup>
 
             <div>
-              <Button type="submit" className="w-full" isLoading={isLoading}>
+              <Button type="submit" className="w-full" isLoading={isPending}>
                 Sign up
               </Button>
             </div>

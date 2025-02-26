@@ -1,4 +1,4 @@
-import { getIssues } from '@/app/actions/issues'
+import { getIssues } from '@/lib/dal'
 import Link from 'next/link'
 import Button from '../components/ui/Button'
 import { PlusIcon } from 'lucide-react'
