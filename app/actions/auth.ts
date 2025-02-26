@@ -96,7 +96,8 @@ export const signin = async (formData: FormData): Promise<ActionResponse> => {
   }
 }
 
-export const signup = async (formData: FormData) => {
+export const signUp = async (formData: FormData) => {
+  console.log('here from the server')
   try {
     const data = {
       email: formData.get('email') as string,
