@@ -11,6 +11,7 @@ export const getCurrentUser = cache(async () => {
   if (!session) return null
 
   // Skip database query during prerendering if we don't have a session
+  // hack until we have PPR https://nextjs.org/docs/app/building-your-application/rendering/partial-prerendering
   if (
     typeof window === 'undefined' &&
     process.env.NEXT_PHASE === 'phase-production-build'
