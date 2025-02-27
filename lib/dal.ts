@@ -10,7 +10,6 @@ import {
 } from 'next/cache'
 
 export const getCurrentUser = cache(async () => {
-  console.log('get current user')
   await mockDelay(1000)
   const session = await getSession()
   if (!session) {
