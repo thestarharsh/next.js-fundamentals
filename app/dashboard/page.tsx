@@ -8,6 +8,7 @@ import { Priority, Status } from '@/lib/types'
 import { ISSUE_STATUS, ISSUE_PRIORITY } from '@/db/schema'
 
 export default async function DashboardPage() {
+  await getCurrentUser()
   const issues = await getIssues()
 
   return (
