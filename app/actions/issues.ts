@@ -78,4 +78,75 @@ export const createIssue = async (data: IssueData) => {
   }
 }
 
-export const updateIssue = async () => {}
+export const updateIssue = async (id: number, data: Partial<IssueData>) => {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user) {
+      return {
+        success: false,
+        message: 'Unauthorized access',
+        error: 'Authorized',
+      }
+    }
+
+    const UpdateSchema = IssueSchema.partial()
+    const validationResult = UpdateSchema.safeParse(data)
+
+    if (!validationResult.success) {
+      return {
+        success: false,
+        message: 'Invalid issue',
+        error: validationResult.error.flatten().fieldErrors,
+      }
+    }
+
+    // Type safe update object with validated data
+    const validatedData = validationResult.data
+    const updateData: Record<string, unknown> = {}
+
+    if (validatedData.title !== undefined)
+      updateData.title = validatedData.title
+    if (validatedData.description !== undefined)
+      updateData.description = validatedData.description
+    if (validatedData.status !== undefined)
+      updateData.status = validatedData.status
+    if (validatedData.priority !== undefined)
+      updateData.priority = validatedData.priority
+
+    // Update issue
+    await db.update(issues).set(updateData).where(eq(issues.id, id))
+
+    return { success: true, message: 'Issue updated successfully' }
+  } catch (e) {
+    console.error('Error updating issue:', e)
+    return {
+      success: false,
+      message: 'An error occurred while updating the issue',
+      error: 'Failed to update issue',
+    }
+  }
+}
+
+export async function deleteIssue(id: number) {
+  try {
+    // Security check - ensure user is authenticated
+    await mockDelay(700)
+    const user = await getCurrentUser()
+    if (!user) {
+      throw new Error('Unauthorized')
+    }
+
+    // Delete issue
+    await db.delete(issues).where(eq(issues.id, id))
+
+    return { success: true, message: 'Issue deleted successfully' }
+  } catch (error) {
+    console.error('Error deleting issue:', error)
+    return {
+      success: false,
+      message: 'An error occurred while deleting the issue',
+      error: 'Failed to delete issue',
+    }
+  }
+}
