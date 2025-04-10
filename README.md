@@ -1,6 +1,6 @@
-# Linear Clone
-
-A project management application built with Next.js, inspired by Linear.
+## Next.js Fundamentals, v4
+This project management application is built with Next.js, inspired by Linear. It's part of the [Next.js Fundamentals, v4](https://frontendmasters.com/courses/next-js-v4/) course on Frontend Masters.
+[![Frontend Masters](https://static.frontendmasters.com/assets/brand/logos/full.png)](https://frontendmasters.com/courses/next-js-v4/)
 
 ## Features
 
