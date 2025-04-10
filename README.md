@@ -22,7 +22,7 @@ To get started with this project, follow the lessons located in the `/lessons` d
 
 ### Prerequisites
 
-- Node.js 16+ and npm/yarn
+- Node.js 22+ and npm/yarn
 - PostgreSQL database (or use a service like [Neon](https://neon.tech/))
 
 ### Installation
