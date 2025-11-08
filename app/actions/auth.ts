@@ -41,16 +41,13 @@ export type ActionResponse = {
 
 export async function signIn(formData: FormData): Promise<ActionResponse> {
   try {
-    // Add a small delay to simulate network latency
     await mockDelay(700)
 
-    // Extract data from form
     const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
     }
 
-    // Validate with Zod
     const validationResult = SignInSchema.safeParse(data)
     if (!validationResult.success) {
       return {
@@ -60,31 +57,24 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
       }
     }
 
-    // Find user by email
     const user = await getUserByEmail(data.email)
     if (!user) {
       return {
         success: false,
         message: 'Invalid email or password',
-        errors: {
-          email: ['Invalid email or password'],
-        },
+        errors: { email: ['Invalid email or password'] },
       }
     }
 
-    // Verify password
     const isPasswordValid = await verifyPassword(data.password, user.password)
     if (!isPasswordValid) {
       return {
         success: false,
         message: 'Invalid email or password',
-        errors: {
-          password: ['Invalid email or password'],
-        },
+        errors: { password: ['Invalid email or password'] },
       }
     }
 
-    // Create session
     await createSession(user.id)
 
     return {
@@ -103,17 +93,14 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
 
 export async function signUp(formData: FormData): Promise<ActionResponse> {
   try {
-    // Add a small delay to simulate network latency
     await mockDelay(700)
 
-    // Extract data from form
     const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       confirmPassword: formData.get('confirmPassword') as string,
     }
 
-    // Validate with Zod
     const validationResult = SignUpSchema.safeParse(data)
     if (!validationResult.success) {
       return {
@@ -123,19 +110,15 @@ export async function signUp(formData: FormData): Promise<ActionResponse> {
       }
     }
 
-    // Check if user already exists
     const existingUser = await getUserByEmail(data.email)
     if (existingUser) {
       return {
         success: false,
         message: 'User with this email already exists',
-        errors: {
-          email: ['User with this email already exists'],
-        },
+        errors: { email: ['User with this email already exists'] },
       }
     }
 
-    // Create new user
     const user = await createUser(data.email, data.password)
     if (!user) {
       return {
@@ -145,7 +128,6 @@ export async function signUp(formData: FormData): Promise<ActionResponse> {
       }
     }
 
-    // Create session for the newly registered user
     await createSession(user.id)
 
     return {
